@@ -102,11 +102,11 @@ export function seedDatabase(userId: string) {
 
   // Create sample tasks
   const sampleTasks = [
-    { title: 'Review project requirements', priority: 2, status: 'pending' },
-    { title: 'Team standup meeting', priority: 1, status: 'pending' },
-    { title: 'Write documentation', priority: 0, status: 'pending' },
-    { title: 'Code review for PR #123', priority: 2, status: 'pending' },
-    { title: 'Plan weekly goals', priority: 1, status: 'pending' },
+    { title: 'Review project requirements', priority: 2, status: 'inbox' },
+    { title: 'Team standup meeting', priority: 1, status: 'inbox' },
+    { title: 'Write documentation', priority: 0, status: 'inbox' },
+    { title: 'Code review for PR #123', priority: 2, status: 'inbox' },
+    { title: 'Plan weekly goals', priority: 1, status: 'inbox' },
   ]
 
   sampleTasks.forEach((task, index) => {
