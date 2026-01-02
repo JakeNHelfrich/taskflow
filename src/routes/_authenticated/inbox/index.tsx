@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { TaskList } from '@/features/tasks/components'
 import { useInboxTasks } from '@/features/tasks/hooks'
 import { useUIStore } from '@/stores/ui-store'
+import type { Task } from '@/features/tasks/types'
 
 export const Route = createFileRoute('/_authenticated/inbox/')({
   component: InboxPage,
@@ -10,7 +11,11 @@ export const Route = createFileRoute('/_authenticated/inbox/')({
 
 function InboxPage() {
   const { data: tasks = [], isLoading, error } = useInboxTasks()
-  const { openModal } = useUIStore()
+  const { openModal, openEditTaskModal } = useUIStore()
+
+  const handleEditTask = (task: Task) => {
+    openEditTaskModal(task)
+  }
 
   const handleAddTask = () => {
     openModal('quick-add-task')
@@ -48,6 +53,7 @@ function InboxPage() {
           <TaskList
             tasks={tasks}
             emptyMessage="Your inbox is empty. Tasks without a scheduled date will appear here."
+            onEditTask={handleEditTask}
           />
         )}
       </div>

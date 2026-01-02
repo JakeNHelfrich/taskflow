@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button'
 import { TaskList } from '@/features/tasks/components'
 import { useTodayTasks } from '@/features/tasks/hooks'
 import { useUIStore } from '@/stores/ui-store'
+import type { Task } from '@/features/tasks/types'
 
 export const Route = createFileRoute('/_authenticated/today/')({
   component: TodayPage,
@@ -12,7 +13,11 @@ export const Route = createFileRoute('/_authenticated/today/')({
 function TodayPage() {
   const today = new Date()
   const { data: tasks = [], isLoading, error } = useTodayTasks()
-  const { openModal } = useUIStore()
+  const { openModal, openEditTaskModal } = useUIStore()
+
+  const handleEditTask = (task: Task) => {
+    openEditTaskModal(task)
+  }
 
   const pendingTasks = tasks.filter((t) => t.status !== 'completed')
   const completedTasks = tasks.filter((t) => t.status === 'completed')
@@ -48,6 +53,7 @@ function TodayPage() {
               <TaskList
                 tasks={pendingTasks}
                 emptyMessage="No tasks scheduled for today"
+                onEditTask={handleEditTask}
               />
 
               {completedTasks.length > 0 && (
@@ -55,7 +61,7 @@ function TodayPage() {
                   <h3 className="text-sm font-medium text-muted-foreground mb-2">
                     Completed ({completedTasks.length})
                   </h3>
-                  <TaskList tasks={completedTasks} />
+                  <TaskList tasks={completedTasks} onEditTask={handleEditTask} />
                 </div>
               )}
             </div>
