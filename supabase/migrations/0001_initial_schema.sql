@@ -1,15 +1,12 @@
 -- Initial database schema for Planner application
 -- This migration creates all core tables with proper types, constraints, and foreign keys
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- ============================================================================
 -- PROFILES TABLE
 -- Stores user profile information linked to Clerk authentication
 -- ============================================================================
 CREATE TABLE profiles (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   clerk_id TEXT UNIQUE NOT NULL,
   email TEXT NOT NULL,
   full_name TEXT,
@@ -27,7 +24,7 @@ CREATE INDEX idx_profiles_email ON profiles(email);
 -- Organizes tasks into projects with visual customization
 -- ============================================================================
 CREATE TABLE projects (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
@@ -48,7 +45,7 @@ CREATE INDEX idx_projects_user_sort ON projects(user_id, sort_order);
 -- User-defined labels for categorizing tasks
 -- ============================================================================
 CREATE TABLE labels (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   color TEXT NOT NULL DEFAULT '#6366f1',
@@ -62,7 +59,7 @@ CREATE INDEX idx_labels_user_id ON labels(user_id);
 -- Core task management with scheduling and recurrence support
 -- ============================================================================
 CREATE TABLE tasks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   project_id UUID REFERENCES projects(id) ON DELETE SET NULL,
   title TEXT NOT NULL,
@@ -108,7 +105,7 @@ CREATE INDEX idx_task_labels_label_id ON task_labels(label_id);
 -- Time blocking for daily planning
 -- ============================================================================
 CREATE TABLE time_blocks (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   title TEXT NOT NULL,
   date DATE NOT NULL,
@@ -141,7 +138,7 @@ CREATE INDEX idx_time_block_tasks_task_id ON time_block_tasks(task_id);
 -- Habit tracking with flexible frequency configuration
 -- ============================================================================
 CREATE TABLE habits (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   name TEXT NOT NULL,
   description TEXT,
@@ -163,7 +160,7 @@ CREATE INDEX idx_habits_user_active ON habits(user_id, is_active);
 -- Tracks daily habit completion
 -- ============================================================================
 CREATE TABLE habit_completions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   habit_id UUID NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
   completed_date DATE NOT NULL,
   count INTEGER NOT NULL DEFAULT 1 CHECK (count >= 0),
@@ -180,7 +177,7 @@ CREATE INDEX idx_habit_completions_habit_date ON habit_completions(habit_id, com
 -- Pomodoro-style focus session tracking
 -- ============================================================================
 CREATE TABLE focus_sessions (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
   task_id UUID REFERENCES tasks(id) ON DELETE SET NULL,
   started_at TIMESTAMPTZ NOT NULL,

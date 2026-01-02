@@ -1,5 +1,6 @@
 import { auth, clerkClient } from '@clerk/tanstack-react-start/server'
 import { redirect } from '@tanstack/react-router'
+import { ensureProfile } from '@/lib/supabase/profile-sync'
 
 /**
  * Error thrown when a user is not authenticated
@@ -17,6 +18,7 @@ export class UnauthenticatedError extends Error {
 export interface AuthenticatedUser {
   userId: string
   sessionId: string
+  profileId: string
   user: {
     id: string
     firstName: string | null
@@ -51,18 +53,30 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser> {
   const client = await clerkClient()
   const backendUser = await client.users.getUser(userId)
 
+  const fullName =
+    backendUser.firstName && backendUser.lastName
+      ? `${backendUser.firstName} ${backendUser.lastName}`
+      : backendUser.firstName || backendUser.lastName || null
+  const email = backendUser.emailAddresses[0]?.emailAddress ?? null
+
+  // Ensure profile exists in Supabase (creates on first login)
+  const profile = await ensureProfile({
+    clerkId: userId,
+    email: email ?? '',
+    fullName,
+    avatarUrl: backendUser.imageUrl,
+  })
+
   return {
     userId,
     sessionId,
+    profileId: profile.id,
     user: {
       id: backendUser.id,
       firstName: backendUser.firstName,
       lastName: backendUser.lastName,
-      fullName:
-        backendUser.firstName && backendUser.lastName
-          ? `${backendUser.firstName} ${backendUser.lastName}`
-          : backendUser.firstName || backendUser.lastName || null,
-      email: backendUser.emailAddresses[0]?.emailAddress ?? null,
+      fullName,
+      email,
       imageUrl: backendUser.imageUrl,
       createdAt: new Date(backendUser.createdAt),
       updatedAt: new Date(backendUser.updatedAt),

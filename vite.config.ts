@@ -30,9 +30,10 @@ export default defineConfig({
     },
   },
   ssr: {
-    noExternal: ['use-sync-external-store'],
+    noExternal: ['use-sync-external-store', 'cookie'],
   },
   optimizeDeps: {
+    include: ['cookie'],
     esbuildOptions: {
       define: {
         'process.env.NODE_ENV': JSON.stringify('development'),
